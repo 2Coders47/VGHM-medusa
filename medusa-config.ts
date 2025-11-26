@@ -1,26 +1,32 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
-
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
-
-// Auto-detect Railway's public domain or use custom BACKEND_URL
-const backendUrl = process.env.BACKEND_URL || 
-                   (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:9000')
+import { defineConfig } from '@medusajs/framework/utils'
+import { 
+  DATABASE_URL, 
+  REDIS_URL, 
+  HOST, 
+  PORT, 
+  STORE_CORS, 
+  ADMIN_CORS, 
+  AUTH_CORS, 
+  JWT_SECRET, 
+  COOKIE_SECRET,
+  BACKEND_URL 
+} from './src/lib/constants'
 
 module.exports = defineConfig({
   projectConfig: {
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl: DATABASE_URL,
     http: {
-      host: process.env.HOST || "0.0.0.0",
-      port: parseInt(process.env.PORT || "9000"),
-      storeCors: process.env.STORE_CORS!,
-      adminCors: process.env.ADMIN_CORS!,
-      authCors: process.env.AUTH_CORS!,
-      jwtSecret: process.env.JWT_SECRET || "supersecret",
-      cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+      host: HOST,
+      port: PORT,
+      storeCors: STORE_CORS,
+      adminCors: ADMIN_CORS,
+      authCors: AUTH_CORS,
+      jwtSecret: JWT_SECRET,
+      cookieSecret: COOKIE_SECRET,
     },
-    ...(process.env.REDIS_URL && { redisUrl: process.env.REDIS_URL }),
+    ...(REDIS_URL && { redisUrl: REDIS_URL }),
   },
   admin: {
-    backendUrl: backendUrl,
+    backendUrl: BACKEND_URL,
   }
 })
