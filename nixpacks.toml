@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['nodejs', 'npm']
+
+[phases.install]
+cmds = ['npm ci --legacy-peer-deps']
+
+[phases.build]
+cmds = ['npm run build']
+
+[start]
+cmd = 'npx medusa db:migrate && npm run start'
