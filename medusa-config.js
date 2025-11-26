@@ -21,7 +21,9 @@ import {
   MINIO_SECRET_KEY,
   MINIO_BUCKET,
   MEILISEARCH_HOST,
-  MEILISEARCH_ADMIN_KEY
+  MEILISEARCH_ADMIN_KEY,
+  HOST,
+  PORT
 } from 'lib/constants';
 
 loadEnv(process.env.NODE_ENV, process.cwd());
@@ -33,6 +35,8 @@ const medusaConfig = {
     redisUrl: REDIS_URL,
     workerMode: WORKER_MODE,
     http: {
+      host: HOST,
+      port: PORT,
       adminCors: ADMIN_CORS,
       authCors: AUTH_CORS,
       storeCors: STORE_CORS,

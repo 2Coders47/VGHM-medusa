@@ -100,3 +100,13 @@ export const WORKER_MODE =
  * Disable Admin
  */
 export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === 'true'
+
+/**
+ * HTTP Host
+ */
+export const HOST = process.env.HOST || '0.0.0.0'
+
+/**
+ * HTTP Port
+ */
+export const PORT = parseInt(process.env.PORT || '9000', 10)
