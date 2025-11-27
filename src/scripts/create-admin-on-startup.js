@@ -40,25 +40,43 @@ async function ensureAdminUserExists() {
     // Enable pgcrypto extension
     await client.query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
 
-    // Create admin user using PostgreSQL's crypt function
-    await client.query(`
-      DO $$
-      DECLARE
-        user_id uuid := gen_random_uuid();
-        auth_id uuid := gen_random_uuid();
-        user_email text := $1;
-        user_password text := $2;
-        password_hash text;
-      BEGIN
-        password_hash := crypt(user_password, gen_salt('bf', 10));
-        
-        INSERT INTO "user" (id, email, first_name, last_name, created_at, updated_at)
-        VALUES (user_id, user_email, 'Admin', 'User', NOW(), NOW());
-        
-        INSERT INTO auth_identity (id, provider_id, provider, entity_id, user_metadata, auth_provider_metadata, app_metadata, provider_metadata, created_at, updated_at)
-        VALUES (auth_id, user_email, 'emailpass', user_id, '{}', jsonb_build_object('password', password_hash), '{}', '{}', NOW(), NOW());
-      END $$;
-    `, [email, password]);
+    // Generate UUID for user
+    const userIdResult = await client.query('SELECT gen_random_uuid() as id');
+    const userId = userIdResult.rows[0].id;
+
+    // Hash password using PostgreSQL's crypt
+    const hashResult = await client.query(
+      "SELECT crypt($1, gen_salt('bf', 10)) as hash",
+      [password]
+    );
+    const passwordHash = hashResult.rows[0].hash;
+
+    // Insert user
+    await client.query(
+      `INSERT INTO "user" (id, email, first_name, last_name, created_at, updated_at)
+       VALUES ($1, $2, 'Admin', 'User', NOW(), NOW())`,
+      [userId, email]
+    );
+
+    // Generate UUID for auth identity
+    const authIdResult = await client.query('SELECT gen_random_uuid() as id');
+    const authId = authIdResult.rows[0].id;
+
+    // Insert auth identity
+    await client.query(
+      `INSERT INTO auth_identity (id, provider_id, provider, entity_id, user_metadata, auth_provider_metadata, app_metadata, provider_metadata, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+      [
+        authId,
+        email,
+        'emailpass',
+        userId,
+        JSON.stringify({}),
+        JSON.stringify({ password: passwordHash }),
+        JSON.stringify({}),
+        JSON.stringify({})
+      ]
+    );
 
     console.log('✅ [Admin Check] Admin user created successfully!');
     console.log(`   Email: ${email}`);
