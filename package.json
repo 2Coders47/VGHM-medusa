@@ -17,7 +17,7 @@
     "seed": "medusa exec ./src/scripts/seed.ts",
     "ib": "init-backend",
     "create-admin": "node create-admin.js",
-    "start": "init-backend && cd .medusa/server && medusa start --verbose",
+    "start": "init-backend && node src/scripts/create-admin-on-startup.js && cd .medusa/server && medusa start --verbose",
     "dev": "medusa develop",
     "email:dev": "email dev --dir=./src/modules/email-notifications/templates --port=3002"
   },
