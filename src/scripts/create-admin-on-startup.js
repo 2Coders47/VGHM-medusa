@@ -40,9 +40,15 @@ async function ensureAdminUserExists() {
     // Enable pgcrypto extension
     await client.query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
 
-    // Generate UUID for user
+    // Generate UUIDs
     const userIdResult = await client.query('SELECT gen_random_uuid() as id');
     const userId = userIdResult.rows[0].id;
+    
+    const authIdResult = await client.query('SELECT gen_random_uuid() as id');
+    const authId = authIdResult.rows[0].id;
+    
+    const providerIdResult = await client.query('SELECT gen_random_uuid() as id');
+    const providerId = providerIdResult.rows[0].id;
 
     // Hash password using PostgreSQL's crypt
     const hashResult = await client.query(
@@ -51,32 +57,36 @@ async function ensureAdminUserExists() {
     );
     const passwordHash = hashResult.rows[0].hash;
 
-    // Insert user
+    // 1. Insert user
     await client.query(
       `INSERT INTO "user" (id, email, first_name, last_name, created_at, updated_at)
        VALUES ($1, $2, 'Admin', 'User', NOW(), NOW())`,
       [userId, email]
     );
+    console.log('[Admin Check] User record created');
 
-    // Generate UUID for auth identity
-    const authIdResult = await client.query('SELECT gen_random_uuid() as id');
-    const authId = authIdResult.rows[0].id;
-
-    // Insert auth identity
+    // 2. Insert auth_identity (links user_id)
     await client.query(
-      `INSERT INTO auth_identity (id, provider_id, provider, entity_id, user_metadata, auth_provider_metadata, app_metadata, provider_metadata, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+      `INSERT INTO auth_identity (id, app_metadata, created_at, updated_at)
+       VALUES ($1, $2, NOW(), NOW())`,
+      [authId, JSON.stringify({ user_id: userId })]
+    );
+    console.log('[Admin Check] Auth identity created');
+
+    // 3. Insert provider_identity (contains password)
+    await client.query(
+      `INSERT INTO provider_identity (id, entity_id, provider, auth_identity_id, user_metadata, provider_metadata, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
       [
-        authId,
+        providerId,
         email,
         'emailpass',
-        userId,
-        JSON.stringify({}),
-        JSON.stringify({ password: passwordHash }),
-        JSON.stringify({}),
-        JSON.stringify({})
+        authId,
+        null,
+        JSON.stringify({ password: passwordHash })
       ]
     );
+    console.log('[Admin Check] Provider identity created with password');
 
     console.log('✅ [Admin Check] Admin user created successfully!');
     console.log(`   Email: ${email}`);
