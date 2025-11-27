@@ -1,27 +1,28 @@
-import { loadEnv } from '@medusajs/framework/utils'
+import { loadEnv } from "@medusajs/framework/utils";
 
-import { assertValue } from 'utils/assert-value'
+import { assertValue } from "utils/assert-value";
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
 /**
  * Is development environment
  */
-export const IS_DEV = process.env.NODE_ENV === 'development'
+export const IS_DEV = process.env.NODE_ENV === "development";
 
 /**
  * Public URL for the backend
  */
-export const BACKEND_URL = process.env.BACKEND_URL ?? 
-  (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:9000')
+export const BACKEND_URL =
+  process.env.BACKEND_URL ??
+  (process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : "http://localhost:9000");
 
 /**
  * Database URL for Postgres instance used by the backend
+ * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const DATABASE_URL = assertValue(
-  process.env.DATABASE_URL,
-  'Environment variable for DATABASE_URL is not set',
-)
+export const DATABASE_URL = process.env.DATABASE_URL || '';
 
 /**
  * (optional) Redis URL for Redis instance used by the backend
@@ -45,19 +46,15 @@ export const STORE_CORS = process.env.STORE_CORS;
 
 /**
  * JWT Secret used for signing JWT tokens
+ * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const JWT_SECRET = assertValue(
-  process.env.JWT_SECRET,
-  'Environment variable for JWT_SECRET is not set',
-)
+export const JWT_SECRET = process.env.JWT_SECRET || '';
 
 /**
  * Cookie secret used for signing cookies
+ * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const COOKIE_SECRET = assertValue(
-  process.env.COOKIE_SECRET,
-  'Environment variable for COOKIE_SECRET is not set',
-)
+export const COOKIE_SECRET = process.env.COOKIE_SECRET || '';
 
 /**
  * (optional) Minio configuration for file storage
@@ -71,13 +68,15 @@ export const MINIO_BUCKET = process.env.MINIO_BUCKET; // Optional, if not set bu
  * (optional) Resend API Key and from Email - do not set if using SendGrid
  */
 export const RESEND_API_KEY = process.env.RESEND_API_KEY;
-export const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || process.env.RESEND_FROM;
+export const RESEND_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || process.env.RESEND_FROM;
 
 /**
  * (optionl) SendGrid API Key and from Email - do not set if using Resend
  */
 export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-export const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || process.env.SENDGRID_FROM;
+export const SENDGRID_FROM_EMAIL =
+  process.env.SENDGRID_FROM_EMAIL || process.env.SENDGRID_FROM;
 
 /**
  * (optional) Stripe API key and webhook secret
@@ -95,19 +94,23 @@ export const MEILISEARCH_ADMIN_KEY = process.env.MEILISEARCH_ADMIN_KEY;
  * Worker mode
  */
 export const WORKER_MODE =
-  (process.env.MEDUSA_WORKER_MODE as 'worker' | 'server' | 'shared' | undefined) ?? 'shared'
+  (process.env.MEDUSA_WORKER_MODE as
+    | "worker"
+    | "server"
+    | "shared"
+    | undefined) ?? "shared";
 
 /**
  * Disable Admin
  */
-export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === 'true'
+export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === "true";
 
 /**
  * HTTP Host
  */
-export const HOST = process.env.HOST || '0.0.0.0'
+export const HOST = process.env.HOST || "0.0.0.0";
 
 /**
  * HTTP Port
  */
-export const PORT = parseInt(process.env.PORT || '9000', 10)
+export const PORT = parseInt(process.env.PORT || "9000", 10);
