@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const crypto = require('crypto');
 
 async function ensureAdminUserExists() {
   // Only run in production
@@ -50,12 +51,28 @@ async function ensureAdminUserExists() {
     const providerIdResult = await client.query('SELECT gen_random_uuid() as id');
     const providerId = providerIdResult.rows[0].id;
 
-    // Hash password using PostgreSQL's crypt
-    const hashResult = await client.query(
-      "SELECT crypt($1, gen_salt('bf', 10)) as hash",
-      [password]
-    );
-    const passwordHash = hashResult.rows[0].hash;
+    // Hash password using scrypt (same as Medusa)
+    const salt = crypto.randomBytes(8);
+    const passwordHash = crypto.scryptSync(password, salt, 64, {
+      N: 256,
+      r: 8,
+      p: 1
+    });
+    
+    // Create buffer with scrypt parameters + salt + hash (Medusa format)
+    const header = Buffer.from('scrypt', 'utf8');
+    const params = Buffer.alloc(8);
+    params.writeUInt32BE(256, 0); // N parameter
+    params.writeUInt32BE(8, 4);   // r parameter (p is always 1)
+    
+    const fullHash = Buffer.concat([
+      header,
+      params,
+      salt,
+      passwordHash
+    ]);
+    
+    const encodedHash = fullHash.toString('base64');
 
     // 1. Insert user
     await client.query(
@@ -83,7 +100,7 @@ async function ensureAdminUserExists() {
         'emailpass',
         authId,
         null,
-        JSON.stringify({ password: passwordHash })
+        JSON.stringify({ password: encodedHash })
       ]
     );
     console.log('[Admin Check] Provider identity created with password');
