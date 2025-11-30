@@ -22,7 +22,7 @@ export const BACKEND_URL =
  * Database URL for Postgres instance used by the backend
  * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const DATABASE_URL = process.env.DATABASE_URL || '';
+export const DATABASE_URL = process.env.DATABASE_URL || "";
 
 /**
  * (optional) Redis URL for Redis instance used by the backend
@@ -48,13 +48,13 @@ export const STORE_CORS = process.env.STORE_CORS;
  * JWT Secret used for signing JWT tokens
  * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const JWT_SECRET = process.env.JWT_SECRET || '';
+export const JWT_SECRET = process.env.JWT_SECRET || "";
 
 /**
  * Cookie secret used for signing cookies
  * Note: May be empty during build phase on Railway, but must be set at runtime
  */
-export const COOKIE_SECRET = process.env.COOKIE_SECRET || '';
+export const COOKIE_SECRET = process.env.COOKIE_SECRET || "";
 
 /**
  * (optional) Minio configuration for file storage
